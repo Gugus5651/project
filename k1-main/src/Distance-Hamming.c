@@ -1,0 +1,37 @@
+#include "Distance-Hamming.h"
+#include <stddef.h>
+// implémentation généralisée de la distance de hamming pour des mots de longueur potentiellement différente
+float Distance_hamming(char const *mot1 , char const *mot2){
+    // si il y a un problème renvoie -1 pour signaler l'erreur
+    if (mot1 == NULL || mot2 == NULL) {
+        return -1;
+    }
+    else {
+        // tant que l'on est pas arrivé à la fin d'un des deux mot on fait hamming classique
+        // on compare le premier caractère de mot 1 avec le premier de mot deux puis le deuxième avec le deuxième et ainsi de suite
+        int i = 0;
+        float distance = 0;
+        while(*(mot1+i) != '\0' && *(mot2+i) != '\0'){
+                if(*(mot1+i)!=*(mot2+i)){
+                    distance += 1;
+                }
+                i+=1;
+        }
+        // s'ils sont de longueur différentes on ajoute 1 pour chaque caractère en trop
+        if(*(mot1+i) == '\0'){
+            while(*(mot2+i) != '\0'){
+                distance +=1;
+                i +=1;
+            }
+        }
+        else if(*(mot2+i) == '\0'){
+            while(*(mot1+i) != '\0'){
+                distance +=1;
+                i +=1;
+            }
+        }
+        return distance;
+    }
+
+}
+// ce programme n'est pas très malin mais il devrait fonctionner en O(n) et être donc rapide
