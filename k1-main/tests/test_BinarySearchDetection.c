@@ -9,6 +9,7 @@
 #include "common.h"
 #include "vector.h"
 #include "detection.h"
+#include "io.h"
 
 
 // dico
@@ -42,6 +43,8 @@ void test_binary1(void) {
     CU_ASSERT_TRUE(binary1(&dict_en, "hello"));
     CU_ASSERT_TRUE(binary1(&dict_en, "love"));
     CU_ASSERT_FALSE(binary1(&dict_en, "bonjour"));
+    CU_ASSERT_FALSE(binary1(&dict_fr, "pescador"));
+    CU_ASSERT_TRUE(binary1(&dict_fr, "bonjour"));
 }
 
 void test_pretty_print_detection_null(void) {
@@ -56,9 +59,10 @@ void test_detect_error_handling(void) {
     char** lines = NULL;
     uint32_t* lines_size = NULL;
     size_t line_count = 0;
+    uint32_t* best_dicts = NULL;
 
     // Test avec un fichier inexistant
-    int res = detect(&indices, "non_existent.txt", &dicts, &dict_count, &lines, &lines_size, &line_count);
+    int res = detect(&indices, "non_existent.txt", &dicts, &dict_count, &lines, &lines_size, &line_count, &best_dicts);
     CU_ASSERT_EQUAL(res, 0); 
 }
 

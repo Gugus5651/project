@@ -96,36 +96,8 @@ int pretty_print_correction(char *line, uint32_t line_number, size_t word_count,
  * @param line_count A pointer to a size_t to hold the number of lines read.
  * @return int 0 on success, -1 on failure.
  */
-static int read_input_file(char *input_path, char ***lines, uint32_t **line_sizes,
-                    size_t *line_count) {
-  *line_count = 0;
-
-  *lines = malloc(sizeof(char *) * INPUT_LINE_COUNT);
-  if (!*lines)
-    return -1;
-
-  *line_sizes = malloc(sizeof(uint32_t) * INPUT_LINE_COUNT);
-  if (!*line_sizes) {
-    free(*lines);
-    return -1;
-  }
-  for (size_t i = 0; i < INPUT_LINE_COUNT; i++) {
-    (*lines)[i] = strdup(input_data[i]);
-
-    if (!(*lines)[i]) {
-      for (size_t j = 0; j < i; j++) {
-        free((*lines)[j]);
-      }
-      free(*lines);
-      free(*line_sizes);
-      return -1;
-    }
-
-    (*line_sizes)[i] = INPUT_WORD_COUNTS[i];
-  }
-  *line_count = INPUT_LINE_COUNT;
-  return 0;
-}
+int read_input_file(char *input_path, char ***lines, uint32_t **line_sizes,
+                    size_t *line_count);
 
 /**
  * @brief Read the dictionary files from the specified path.
@@ -137,45 +109,7 @@ static int read_input_file(char *input_path, char ***lines, uint32_t **line_size
  * dictionaries successfully loaded.
  * @return 0 on success, -1 on failure.
  */
-static int load_dictionaries(const char *path, Dictionary_t **dicts,
-                      size_t *dict_count) {
-  *dicts = malloc(sizeof(Dictionary_t));
-  if (!*dicts)
-    return -1;
-
-  Dictionary_t *d = *dicts;
-  d->id = 1;
-  d->word_count = DICTIONARY_SIZE;
-
-  d->lang = strdup("wallon");
-  if (!d->lang) {
-    free(d);
-    return -1;
-  }
-
-  d->words = malloc(sizeof(char *) * DICTIONARY_SIZE);
-  if (!d->words) {
-    free(d->lang);
-    free(d);
-    return -1;
-  }
-
-  for (size_t i = 0; i < DICTIONARY_SIZE; i++) {
-    d->words[i] = strdup(dictionary[i]);
-
-    if (!d->words[i]) {
-      for (size_t j = 0; j < i; j++) {
-        free(d->words[j]);
-      }
-      free(d->words);
-      free(d->lang);
-      free(d);
-      return -1;
-    }
-  }
-
-  *dict_count = 1;
-  return 0;
-}
+int load_dictionaries(const char *path, Dictionary_t **dicts,
+                      size_t *dict_count);
 
 #endif // IO_H

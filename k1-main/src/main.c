@@ -9,6 +9,7 @@
 #include "vector.h"
 #include "Distance-JW.h"
 #include "input.h"
+#include "io.h"
 
 void free_args(CommandLineArgs_t* args) {
     if (args) {
@@ -115,6 +116,14 @@ int main(int argc, char const *argv[]) {
     printf("Verbose: %s\n", args->verbose ? "Enabled" : "Disabled");
     printf("Threads: %u\n", args->threads);
 
+    // On recupère le fichier de sortie avec l'argument output_path.
+    // Si c'est NULL, on print dans le terminal.
+    OutputStreams_t* streams = NULL;
+    if (args -> output_path != NULL) {
+        printf("Opening output: %s\n", args->output_path);
+        streams = open_outputs(args -> output_path);
+    }
+
     free_args(args);
 
     Vector* indices;
@@ -123,9 +132,11 @@ int main(int argc, char const *argv[]) {
     uint32_t* lines_size;
     Dictionary_t* dicts;
     size_t dict_count;
+    uint32_t* best_dicts;
 
-    if (detect(&indices, NULL, &dicts, &dict_count, &lines, &lines_size, &line_count) != 1) {
+    if (detect(&indices, NULL, &dicts, &dict_count, &lines, &lines_size, &line_count, &best_dicts) != 1) {
         printf("Erreur lors de la détection des mots\n");
+        if (streams) close_outputs(streams);
         return 0;
     }
 
@@ -134,31 +145,40 @@ int main(int argc, char const *argv[]) {
         printf("Erreur lors de la correction des mots\n");
         for (size_t i = 0 ; i < line_count ; i++) vector_free(&indices[i]);
         free(indices);
+        free(best_dicts);
+        if (streams) close_outputs(streams);
         return 0;
     } 
 
     for (size_t i = 0 ; i < line_count ; i++) {
-        size_t bad_word_count = indices[i].size;
-        pretty_print_correction(lines[i], (uint32_t) i, bad_word_count, indices[i].data, correction[i]);
+        uint32_t bad_words_count = indices[i].size;
+
+        // If/else en fonction de s'il y a un fichier output ou pas. Si non, print dans le 
+        // terminal avec pretty_print_correction().
+        if (streams != NULL) {
+            write_detection(streams, (uint32_t) i, (uint32_t) best_dicts[i], bad_words_count, indices[i].data);
+            write_correction(streams, bad_words_count, correction[i]);
+        }
+        else {
+            pretty_print_correction(lines[i], (uint32_t) i, (size_t) bad_words_count, indices[i].data, correction[i]);
+        }
     }
 
+    if (streams) close_outputs(streams);
+    free(best_dicts);
+
     for (size_t i = 0 ; i < line_count ; i++) {
-        for (size_t j = 0 ; j < indices[i].size ; j++) {
-            free(correction[i][j]);
-        }
+        for (size_t j = 0 ; j < indices[i].size ; j++) free(correction[i][j]);
         free(correction[i]);
         vector_free(&indices[i]);
     }
     free(correction);
     free(indices);
 
-    for (size_t i = 0 ; i < line_count ; i++) {
-        free(lines[i]);
-    }
+    for (size_t i = 0 ; i < line_count ; i++) free(lines[i]);
     free(lines);
     free(lines_size);
-
     free(dicts);
-
+    
     return 0;
 }

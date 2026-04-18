@@ -35,9 +35,6 @@ int generer_suppressions(const char *mot, char resultats[][MAX_WORD_LEN]) {
     return len;
 }
 
-
-// --- 2. GESTION DE LA TABLE DE HACHAGE ---
-
 // Insère une clé (ex: "cat") et son mot d'origine (ex: "chat") dans la table
 void inserer_dans_table(HashTable_t *ht, const char *cle, char *mot_original) {
     if (ht == NULL || cle == NULL || mot_original == NULL) return;
@@ -79,7 +76,7 @@ static char* chercher_dans_table(HashTable_t *ht, const char *cle) {
 // --- 3. L'API PUBLIQUE (Ce qu'on appelle depuis le main) ---
 
 // Construit l'index SymSpell à partir du dictionnaire fourni par le prof
-HashTable_t* initialiser_symspell(Dictionary_t *dict) {
+HashTable_t* initialiser_symspell_(Dictionary_t *dict) {
     if (dict == NULL || dict->word_count == 0) return NULL;
 
     HashTable_t *ht = (HashTable_t*) malloc(sizeof(HashTable_t));
