@@ -1,6 +1,0 @@
-build/
-spellchecker
-vgcore.*
-.vscode/*
-.idea/*
-*.iml.DS_Store
